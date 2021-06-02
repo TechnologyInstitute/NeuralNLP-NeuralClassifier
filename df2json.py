@@ -28,7 +28,7 @@ import json
 import re
 
 df1 = pd.read_csv("train_v12.csv")
-df1.columns = ['doc_token', 'doc_label']
+df1.columns = ['doc_label', 'doc_token']
 df1 = df1[['doc_label', 'doc_token']]
 df1.head(3)
 
@@ -39,7 +39,7 @@ print(train_data_df.shape)
 print(test_data_df.shape)
 
 df2 = pd.read_csv("test_v12.csv")
-df2.columns = ['doc_token', 'doc_label']
+df2.columns = ['doc_label', 'doc_token']
 df2 = df2[['doc_label', 'doc_token']]
 df2.head(3)
 
@@ -87,15 +87,16 @@ outout: json数据
 }
 """
 def data_process(df, outfile, tokenize_strategy):
+    print(df)
     with open(outfile, "w+", encoding='utf-8') as f:
         for indexs in df.index:
             dict1 = {}
             dict1['doc_label'] = [str(df.loc[indexs].values[0])]
             doc_token = df.loc[indexs].values[1]
             # 只保留中文、大小写字母和阿拉伯数字
-            #reg = "[^0-9A-Za-z\u4e00-\u9fa5]"
-            #doc_token =re.sub(reg, '', doc_token)
-            #print(doc_token)
+            reg = "[^0-9A-Za-z\u4e00-\u9fa5]"
+            doc_token =re.sub(reg, '', doc_token)
+            print(doc_token)
             # 中文分词
             # 分词策略可以选“jieba”或者“pkuseg”
             if tokenize_strategy=='jieba':
@@ -106,12 +107,15 @@ def data_process(df, outfile, tokenize_strategy):
                 seg_list = seg_list
                 
             # 去除停用词
+            
             content = [x for x in seg_list if x not in stop_words('stop_words.txt')]
             dict1['doc_token'] = content
             dict1['doc_keyword'] = []
             dict1['doc_topic'] = []
+            print('doc_label',dict1['doc_label'] )
+            print('doc_token', dict1['doc_token'])
             # 组合成字典
-            #print(dict1)
+            print(dict1)
             # 将字典转化成字符串
             json_str = json.dumps(dict1, ensure_ascii=False)
             # 已添加的方式写入json文件
