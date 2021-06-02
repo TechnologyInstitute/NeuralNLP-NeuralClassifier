@@ -116,7 +116,7 @@ def data_process(df, outfile, tokenize_strategy):
                 
             # 去除停用词
             
-            content = [x for x in seg_list if x not in stop_words('stop_words.txt')]
+            content = [x for x in seg_list if x not in stop_words(input_path + 'stop_words.txt')]
             dict1['doc_token'] = content
             dict1['doc_keyword'] = []
             dict1['doc_topic'] = []
@@ -134,6 +134,6 @@ def data_process(df, outfile, tokenize_strategy):
 # pkuseg比较特殊
 # 这里咱们使用jieba加工模型训练的数据集
 # 然后训练模型，看数据处理是否成功
-data_process(train_data_df, input_path + 'train.json', "jieba")   
-data_process(test_data_df, input_path + 'validate.json', "jieba") 
-data_process(df2, input_path + 'test.json', "jieba")               
+data_process(train_data_df, input_path + 'rcv2_train.json', "jieba")   
+data_process(test_data_df, input_path + 'rcv2_dev.json', "jieba") 
+data_process(df2, input_path + 'rcv2_test.json', "jieba")               
