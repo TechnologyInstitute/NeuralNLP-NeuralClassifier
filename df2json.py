@@ -27,7 +27,9 @@ import sys
 import json
 import re
 
-df1 = pd.read_csv("train_v12.csv")
+input_path ="data/"
+file_name1 = input_path+"train_v12.csv"
+df1 = pd.read_csv(file_name1,error_bad_lines=False)
 df1.columns = ['doc_label', 'doc_token']
 df1 = df1[['doc_label', 'doc_token']]
 df1.head(3)
@@ -35,10 +37,11 @@ df1.head(3)
 # 切分训练集和验证集
 from sklearn.model_selection import train_test_split 
 train_data_df, test_data_df= train_test_split(df1, test_size=0.2)
-print(train_data_df.shape)
-print(test_data_df.shape)
+#(train_data_df.shape)
+#print(test_data_df.shape)
 
-df2 = pd.read_csv("test_v12.csv")
+file_name2 = input_path+"test_v12.csv"
+df2 = pd.read_csv(file_name2,error_bad_lines=False)
 df2.columns = ['doc_label', 'doc_token']
 df2 = df2[['doc_label', 'doc_token']]
 df2.head(3)
@@ -87,7 +90,10 @@ outout: json数据
 }
 """
 def data_process(df, outfile, tokenize_strategy):
+    print('""""""""""data_process start"""""""""""""')
+    print('""""""""""print df start"""""""""""""')
     print(df)
+    print('""""""""""print df end"""""""""""""')
     with open(outfile, "w+", encoding='utf-8') as f:
         for indexs in df.index:
             dict1 = {}
@@ -96,7 +102,9 @@ def data_process(df, outfile, tokenize_strategy):
             # 只保留中文、大小写字母和阿拉伯数字
             reg = "[^0-9A-Za-z\u4e00-\u9fa5]"
             doc_token =re.sub(reg, '', doc_token)
+            print('""""""""""doc_token start"""""""""""""')
             print(doc_token)
+            print('""""""""""doc_token end"""""""""""""')
             # 中文分词
             # 分词策略可以选“jieba”或者“pkuseg”
             if tokenize_strategy=='jieba':
@@ -112,18 +120,20 @@ def data_process(df, outfile, tokenize_strategy):
             dict1['doc_token'] = content
             dict1['doc_keyword'] = []
             dict1['doc_topic'] = []
+            print('""""""""""doc_label doc_token start"""""""""""""')
             print('doc_label',dict1['doc_label'] )
             print('doc_token', dict1['doc_token'])
+            print('""""""""""doc_label doc_token end"""""""""""""')
             # 组合成字典
-            print(dict1)
+            #print(dict1)
             # 将字典转化成字符串
             json_str = json.dumps(dict1, ensure_ascii=False)
             # 已添加的方式写入json文件
             f.write('%s\n' % json_str)      
-            
+        print('""""""""""data_process end"""""""""""""')    
 # pkuseg比较特殊
 # 这里咱们使用jieba加工模型训练的数据集
 # 然后训练模型，看数据处理是否成功
-data_process(train_data_df, 'train.json', "jieba")   
-data_process(test_data_df, 'validate.json', "jieba") 
-data_process(df2, 'test.json', "jieba")               
+data_process(train_data_df, input_path + 'train.json', "jieba")   
+data_process(test_data_df, input_path + 'validate.json', "jieba") 
+data_process(df2, input_path + 'test.json', "jieba")               
