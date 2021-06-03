@@ -1,3 +1,4 @@
+#coding=utf-8
 # 如果需要使用北大pkuseg分词，通过如下命令安装python包
 # !pip install -i https://pypi.tuna.tsinghua.edu.cn/simple pkuseg
 
@@ -26,6 +27,9 @@ import pkuseg
 import sys
 import json
 import re
+import threading
+from time import ctime,sleep
+import os
 
 input_path ="data/"
 file_name1 = input_path+"train_v12.csv"
@@ -91,11 +95,19 @@ outout: json数据
 """
 def data_process(df, outfile, tokenize_strategy):
     print('""""""""""data_process start"""""""""""""')
-    print('""""""""""print df start"""""""""""""')
-    print(df)
-    print('""""""""""print df end"""""""""""""')
-    with open(outfile, "w+", encoding='utf-8') as f:
+    processId = os.getpid()
+    threadId = threading.currentThread().ident
+    print('%s号进程任务 : '%processId)
+    print('%s号线程任务 : '%threadId)
+    #print('""""""""""print df start"""""""""""""')
+    #print(df)
+    #print('""""""""""print df end"""""""""""""')
+    with open(outfile, "w+", buffering=20, encoding='utf-8') as f:
+        count=0
         for indexs in df.index:
+            print('%s号进程任务 : '%processId)
+            print('%s号线程任务 : '%threadId)
+            count+=1
             dict1 = {}
             dict1['doc_label'] = [str(df.loc[indexs].values[0])]
             doc_token = df.loc[indexs].values[1]
@@ -103,7 +115,7 @@ def data_process(df, outfile, tokenize_strategy):
             reg = "[^0-9A-Za-z\u4e00-\u9fa5]"
             doc_token =re.sub(reg, '', doc_token)
             print('""""""""""doc_token start"""""""""""""')
-            print(doc_token)
+            print(count)
             print('""""""""""doc_token end"""""""""""""')
             # 中文分词
             # 分词策略可以选“jieba”或者“pkuseg”
@@ -121,8 +133,8 @@ def data_process(df, outfile, tokenize_strategy):
             dict1['doc_keyword'] = []
             dict1['doc_topic'] = []
             print('""""""""""doc_label doc_token start"""""""""""""')
-            print('doc_label',dict1['doc_label'] )
-            print('doc_token', dict1['doc_token'])
+            print(u'doc_label:  %s'%dict1['doc_label'] )
+            print(u'doc_token:  '%dict1['doc_token'])
             print('""""""""""doc_label doc_token end"""""""""""""')
             # 组合成字典
             #print(dict1)
@@ -134,6 +146,24 @@ def data_process(df, outfile, tokenize_strategy):
 # pkuseg比较特殊
 # 这里咱们使用jieba加工模型训练的数据集
 # 然后训练模型，看数据处理是否成功
-data_process(train_data_df, input_path + 'rcv2_train.json', "jieba")   
-data_process(test_data_df, input_path + 'rcv2_dev.json', "jieba") 
-data_process(df2, input_path + 'rcv2_test.json', "jieba")               
+# data_process(train_data_df, input_path + 'rcv2_train.json', "jieba")   
+# data_process(test_data_df, input_path + 'rcv2_dev.json', "jieba") 
+# data_process(df2, input_path + 'rcv2_test.json', "jieba")               
+
+threads = []
+t1 = threading.Thread(target=data_process,args=(train_data_df, input_path + 'rcv2_train.json', "jieba"))
+threads.append(t1)
+t2 = threading.Thread(target=data_process,args=(test_data_df, input_path + 'rcv2_dev.json', "jieba"))
+threads.append(t2)
+t3 = threading.Thread(target=data_process,args=(df2, input_path + 'rcv2_test.json', "jieba"))
+threads.append(t3)
+
+if __name__ == '__main__':
+    for t in threads:
+        t.setDaemon(True)
+        t.start()
+    
+    for t in threads:
+         t.join() 
+
+    print("all over %s" %ctime())
