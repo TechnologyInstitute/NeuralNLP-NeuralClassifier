@@ -97,16 +97,16 @@ def data_process(df, outfile, tokenize_strategy):
     print('""""""""""data_process start"""""""""""""')
     processId = os.getpid()
     threadId = threading.currentThread().ident
-    print('%s号进程任务 : '%processId)
-    print('%s号线程任务 : '%threadId)
+    print(u'%s号进程任务 : '%processId)
+    print(u'%s号线程任务 : '%threadId)
     #print('""""""""""print df start"""""""""""""')
     #print(df)
     #print('""""""""""print df end"""""""""""""')
     with open(outfile, "w+", buffering=20, encoding='utf-8') as f:
         count=0
         for indexs in df.index:
-            print('%s号进程任务 : '%processId)
-            print('%s号线程任务 : '%threadId)
+            print(u'%s号进程任务 : '%processId)
+            print(u'%s号线程任务 : '%threadId)
             count+=1
             dict1 = {}
             dict1['doc_label'] = [str(df.loc[indexs].values[0])]
@@ -134,7 +134,7 @@ def data_process(df, outfile, tokenize_strategy):
             dict1['doc_topic'] = []
             print('""""""""""doc_label doc_token start"""""""""""""')
             print(u'doc_label:  %s'%dict1['doc_label'] )
-            print(u'doc_token:  '%dict1['doc_token'])
+            print(u'doc_token:  %s'%dict1['doc_token'])
             print('""""""""""doc_label doc_token end"""""""""""""')
             # 组合成字典
             #print(dict1)
