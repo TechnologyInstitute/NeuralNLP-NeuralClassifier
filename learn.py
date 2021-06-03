@@ -32,7 +32,7 @@ from time import ctime,sleep
 import os
 
 input_path ="data/"
-file_name1 = input_path+"train_v12.csv"
+file_name1 = input_path+"train_v12_test.csv"
 df1 = pd.read_csv(file_name1,error_bad_lines=False)
 df1.columns = ['doc_label', 'doc_token']
 df1 = df1[['doc_label', 'doc_token']]
@@ -104,28 +104,24 @@ def data_process(df, outfile, tokenize_strategy):
     print('""""""""""print totalItems start"""""""""""""')
     print(totalItems)
     print('""""""""""print totalItems end"""""""""""""')
-    #print('""""""""""print df start"""""""""""""')
-    #print(df)
-    #print('""""""""""print df end"""""""""""""')
     with open(outfile, "w+", buffering=20, encoding='utf-8') as f:
         count=0
         for indexs in df.index:
             print(u'%s号进程任务 : '%processId)
             print(u'%s号线程任务 : '%threadId)
             count+=1
-            
-            print('""""""""""doc_token start"""""""""""""')
-            tmpl = 'count/Total: {curentCount} / {items}!'
-            print(tmpl.format(curentCount = count,items = totalItems)) 
-            print('""""""""""doc_token end"""""""""""""')
-
             dict1 = {}
             dict1['doc_label'] = [str(df.loc[indexs].values[0])]
             doc_token = df.loc[indexs].values[1]
             # 只保留中文、大小写字母和阿拉伯数字
             reg = "[^0-9A-Za-z\u4e00-\u9fa5]"
             doc_token =re.sub(reg, '', doc_token)
-           
+            print('""""""""""doc_token start"""""""""""""')
+            print('count/Total: ' + f'{count}' + '/' + f'{totalItems}')
+
+            tmpl = 'This is a different count/Total: {curentCount} / {items}!'
+            print(tmpl.format(curentCount = count,items = totalItems)) 
+            print('""""""""""doc_token end"""""""""""""')
             # 中文分词
             # 分词策略可以选“jieba”或者“pkuseg”
             if tokenize_strategy=='jieba':
@@ -155,24 +151,6 @@ def data_process(df, outfile, tokenize_strategy):
 # pkuseg比较特殊
 # 这里咱们使用jieba加工模型训练的数据集
 # 然后训练模型，看数据处理是否成功
-# data_process(train_data_df, input_path + 'rcv2_train.json', "jieba")   
+data_process(train_data_df, input_path + 'rcv2_train_test.json', "jieba")   
 # data_process(test_data_df, input_path + 'rcv2_dev.json', "jieba") 
 # data_process(df2, input_path + 'rcv2_test.json', "jieba")               
-
-threads = []
-t1 = threading.Thread(target=data_process,args=(train_data_df, input_path + 'rcv2_train.json', "jieba"))
-threads.append(t1)
-t2 = threading.Thread(target=data_process,args=(test_data_df, input_path + 'rcv2_dev.json', "jieba"))
-threads.append(t2)
-t3 = threading.Thread(target=data_process,args=(df2, input_path + 'rcv2_test.json', "jieba"))
-threads.append(t3)
-
-if __name__ == '__main__':
-    for t in threads:
-        t.setDaemon(True)
-        t.start()
-    
-    for t in threads:
-         t.join() 
-
-    print("all over %s" %ctime())
