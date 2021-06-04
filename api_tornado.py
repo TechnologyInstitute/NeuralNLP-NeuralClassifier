@@ -35,11 +35,18 @@ class MainHandler(tornado.web.RequestHandler):
         self.write("Hello , I love this world~\n")
 
     def post(self):
-        #sentence = self.get_argument('sentence')
-        #print('sentence passed is %s' %sentence)
+        sentence = self.get_argument('sentence')
+        #lan=0 English lan=1 Chinese
+        lan = self.get_argument('language')
+        print('sentence passed is %s' %sentence)
 
-        sentence = '{"doc_label": ["Computer--MachineLearning--DeepLearning", "Neuro--ComputationalNeuro"],"doc_token": ["I", "love", "deep", "learning"],"doc_keyword": ["deep learning"],"doc_topic": ["AI", "Machine learning"]}'
+        #sentence = '{"doc_label": ["Computer--MachineLearning--DeepLearning", "Neuro--ComputationalNeuro"],"doc_token": ["I", "love", "deep", "learning"],"doc_keyword": ["deep learning"],"doc_topic": ["AI", "Machine learning"]}'
         config = Config(config_file='conf/train.json')
+        if lan == '0':
+         config = Config(config_file='conf/train.json')
+        if lan == '1':
+         print('trains.json used')
+         config = Config(config_file='conf/train2.json')
         predictor = Predictor(config)
         batch_size = config.eval.batch_size
         input_texts = []
